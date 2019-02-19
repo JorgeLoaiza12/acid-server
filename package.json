@@ -5,7 +5,6 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "NODE_ENV=production node server.js",
     "dev": "nodemon server.js"
   },
   "author": "Jorge Loaiza",
@@ -21,5 +20,8 @@
     "lodash": "^4.17.11",
     "node-fetch": "^2.3.0",
     "redis": "^2.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.10"
   }
 }
