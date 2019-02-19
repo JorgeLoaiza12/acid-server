@@ -1,0 +1,17 @@
+version: '3.1'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+     - "3000:3000"
+    volumes:
+     - .:/server
+     - /server/node_modules
+    depends_on:
+     - redis
+  redis:
+    image: redis
+    ports:
+     - "6379:6379"
