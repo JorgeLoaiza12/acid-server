@@ -1,27 +1,29 @@
 'use strict';
 
 require('dotenv').load();
-const express = require('express');
-const DarkSky = require('dark-sky');
-const fetch = require('node-fetch');
-const bodyParser = require('body-parser');
-const { promisify } = require("es6-promisify");
+import redis from 'redis';
+import express from 'express';
+import DarkSky from 'dark-sky';
+import bodyParser from 'body-parser';
+import { promisify } from 'es6-promisify';
+import fetch from 'node-fetch';
 const googleMapsClient = require('@google/maps').createClient({
     key: process.env.GOOGLE_MAPS_KEY,
     Promise: Promise
 });
 const darksky = new DarkSky(process.env.DARKSKY_KEY);
-const redis = require("redis").createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
+
+const redisClient = redis.createClient(process.env.REDIS_PORT, process.env.REDIS_HOST);
 
 /**
  * Permite usar el redis.get como una promesa.
  */
-const getAsync = promisify(redis.get.bind(redis));
+const getAsync = promisify(redisClient.get.bind(redisClient));
 
 /**
  * Funcion que busca el nombre del pais en un objeto en el cual uno de sus tipos contenga la palabra country.
  */
-function findCountryName(data) {
+const findCountryName = (data) => {
     let filtered_array = data.address_components.filter((address_component) => {
         return address_component.types.includes("country");
     });
@@ -36,7 +38,7 @@ function findCountryName(data) {
 /**
  * Funcion encargada de hacer las peticiones a los distintos servicios
  */
-async function processRequest(req, res) {
+const processRequest = async (req, res) => {
     try {
         if (!req.body.lat || !req.body.lng) {
             throw "Ha ocurrido un problema, vuelve a intentar mas tarde.";
@@ -46,7 +48,8 @@ async function processRequest(req, res) {
         if (countryNameInfo.status != 200) {
             throw ("Ha ocurrido un error");
         }
-        let countryName = findCountryName(countryNameInfo.json.results[0]);
+        const countryName = findCountryName(countryNameInfo.json.results[0]);
+
 
         let countryRedis = await getAsync(countryName.long_name);
         if (countryRedis) {
@@ -77,7 +80,7 @@ async function processRequest(req, res) {
                 timezone: countryWeather.timezone,
                 weather: countryWeather.currently
             };
-            redis.set(countryName.long_name, JSON.stringify(result), redis.print);
+            redisClient.set(countryName.long_name, JSON.stringify(result), redisClient.print);
             res.json({ status: 200, data: result });
         }
     } catch (error) {
