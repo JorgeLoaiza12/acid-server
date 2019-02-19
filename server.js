@@ -1,6 +1,5 @@
 'use strict';
 
-require('dotenv').load();
 import redis from 'redis';
 import express from 'express';
 import DarkSky from 'dark-sky';

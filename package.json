@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "./node_modules/.bin/babel --presets es2015 -d build/ server.js",
-    "start": "npm run build && node build/server.js"
+    "start": "npm run build && node --require dotenv/config --require babel-register build/server.js"
   },
   "author": "Jorge Loaiza",
   "license": "ISC",
