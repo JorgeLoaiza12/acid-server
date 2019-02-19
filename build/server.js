@@ -75,7 +75,6 @@ var processRequest = async function processRequest(req, res) {
         } else {
             var fetchCountryData = await (0, _nodeFetch2.default)('https://restcountries.eu/rest/v2/alpha/' + countryName.short_name);
             var countryData = await fetchCountryData.json();
-            console.log('countryData', countryData);
             if (countryData.status === 400 || countryData.status === 503) {
                 throw "Ha ocurrido un error";
             }
